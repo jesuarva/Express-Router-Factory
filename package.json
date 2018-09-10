@@ -1,0 +1,8 @@
+{
+  "name": "express-router-factory",
+  "version": "1.0.0",
+  "description": "Router Factory is a boiler plate for express routers enpoints. It came with predefined middlewares/validators and also provide the posibility to include custome ones. It allows population and projection",
+  "main": "index.js",
+  "author": "Jesuarva <jesuarva.developer@gmail.com>",
+  "license": "MIT"
+}
