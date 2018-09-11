@@ -77,7 +77,7 @@ See [METHODS section](#METHODS) for more datails.
 
 ```Javascript
 // server.js
-const notesRouter = require('path/to/routers/Notes.router'); // Import our notes model
+const notesRouter = require('path/to/routers/Notes.router'); // Import our notes router
 
 ...
 
