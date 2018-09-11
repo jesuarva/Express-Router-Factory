@@ -157,7 +157,7 @@ This method builds a GET enpoint at `/:id` by default. But you can pass your own
 > The logic it applies is the following:
 
 ```Javascript
-GET(path = '/:id') {
+GET_id(path = '/:id') {
     .get(isIdValid, handleGET, sendResponseToClients)
     router.use(handleError.bind(this));
   }
@@ -216,3 +216,32 @@ I'll cover that leter on in the [PREDEFINED MIDDLEWARE Section](#PREDEFINED-MIDD
 # NOTE: Work in progress
 
 > THIS DOCUMENTATION IS IN PROCESS OF BEING WRITTEN. Apologies for the missing information. Please contact me if you need some help.
+
+```Javascript
+const Notes = require('path/to/models/Notes.model'); // Import our notes model
+const router = express.Router(); // Create a 'router' instance
+
+// Create a Router Factory instance, pass to the constructor your 'router' and 'Notes' instances as parameters.
+const RF = new RouterFactory(router, Notes);
+
+// Set Population for all CRUD endpoints
+RF.setPopulate({ users: { __v: 0, notes: 0, password: 0 } });
+
+// If you only need to build a GET endpoint.
+RF.GET('/');
+
+
+// ... if you want to add custom middlewares to this endpoint.
+RF.GET('/', custom_middleware_1, ..., custom_middleware_n);
+
+// Create all CRUD endpoints.
+RF.CRUD();
+
+
+function custom_middleware_1(req, res, next) {
+  // some middleware code here.
+}
+function custom_middleware_n(req, res, next) {
+  // some middleware code here.
+}
+```
