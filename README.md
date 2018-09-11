@@ -2,6 +2,12 @@
 
 > Router Factory is a boilerplate for express routers endpoints. It came with predefined middlewares/validators and also provide the possibility to include custom ones. It allows population and projection
 
+# Installation
+
+```
+  yarn add express-router-factory
+```
+
 ## Basic usage
 
 > I take as an example a fictional 'Notes' and 'User models
