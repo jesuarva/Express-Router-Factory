@@ -63,7 +63,7 @@ RF.CRUD();  // That is all you need.
 ```
 
 That is all you need, now a GET, POST, PUT and DELETE enpoints are defined for the 'Notes' model.
-See [CRUD section](##METHODS) for a more datails .
+See [CRUD section](#METHODS) for a more datails .
 
 ---
 
