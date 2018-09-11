@@ -4,32 +4,88 @@
 
 ## Basic usage
 
-> I take as an example a fictional 'Notes' model
+> I take as an example a fictional 'Notes' and 'User models
 
 ```Javascript
-...
+// Notes.model.js
+const Notes = new Schema({
+  title: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  content: {
+    type: String,
+    default: 'Add your fancy notes here.',
+  },
+  date: {
+    type: Date,
+    default: Date.now,
+  },
+  users: [
+    {
+      type: ObjectId,
+      ref: 'Users',
+      required: true,
+    },
+  ],
+});
 
-const Notes = require('../../models/Notes.model');
-const router = express.Router();
+// User.model.js
+const Users = new Schema({
+  name: {
+    type: String,
+    require: true,
+  },
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  notes: [{ type: ObjectId, ref: 'Notes' }],
+});
+```
 
-const RF = new RouterFactory(router, Notes);
+> Implement router for the Notes models with all CRUD endpoints.
 
-// Set Population for all CRUD endpoints
-RF.setPopulate({ users: { __v: 0, notes: 0, password: 0 } });
+```Javascript
+const Notes = require('path/to/models/Notes.model'); // Import our notes model
+const router = express.Router(); // Create a 'router' instance
 
-// If you only need to build a GET endpoint.
-RF.GET('/');
-
-
-// ... if you want to add custom middlewares to this endpoint.
-RF.GET('/', custom_middleware);
+const RF = new RouterFactory(router, Notes); // Create a Router Factory instance
 
 // Create all CRUD endpoints.
-RF.CRUD();
+RF.CRUD();  // That is all you need.
+```
 
+That is all you need, now a GET, POST, PUT and DELETE enpoints are defined for the 'Notes' model.
+See [`CRUD()` section](## CRUD) for a more datails .
 
-function custom_middleware(req, res, next) {
-  // some middleware code here.
-}
-...
+---
+
+# METHODS
+
+## CRUD
+
+This method builds a GET, POST, PUT and DELETE enpoints for the Model passed to the RouterFactory.
+
+> The logic it applies is the following:
+
+```Javascript
+  router
+    .route('/')
+    .get(handleGET, sendResponseToClient)
+    .post(validateParameters, handlePOST, sendResponseToClient);
+
+  router
+    .route('/:id')
+    .get(isIdValid, handleGET, sendResponseToClients)
+    .put(isIdValid, validateParameters, excludeUniqueFieldsFromPUT, handlePUT, sendResponseToClient)
+    .delete(isIdValid, handleDELETE);
+
+  router.use(handleError);
 ```

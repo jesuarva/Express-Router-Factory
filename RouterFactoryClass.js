@@ -235,7 +235,7 @@ function validateParameters(req, res, next) {
   let requiredPaths = [];
 
   // Get Schema paths and path's properties:
-  const pathsANDschema = Object.entries(this.Model.schema.paths);
+  const pathsANDschema = Object.entries(this.Model.schema.paths); // returns an Array [[property_1, schema_1], [property_2, schema_2], ..., [property_n, schema_n]]
 
   /**
    * Filter the required paths: and push them to the 'requiredPaths' variable
@@ -306,4 +306,3 @@ function areThereMissingPathsInParams(paths, parameters) {
   }
   return missingFields;
 }
-
