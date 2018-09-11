@@ -227,6 +227,9 @@ const RF = new RouterFactory(router, Notes);
 // Set Population for all CRUD endpoints
 RF.setPopulate({ users: { __v: 0, notes: 0, password: 0 } });
 
+// Set projections for all CRUD endpoints
+RF.setProjection({ password: 0 });
+
 // If you only need to build a GET endpoint.
 RF.GET('/');
 
