@@ -148,7 +148,7 @@ GET(path = '/') {
 ```
 
 In the sake of simplicity, I'm omiting the second parameter this method expect, but do not worry, the behaivor of this method do not change.
-I'll cover that leter on in the [PREDEFINED MIDDLEWARE Section](#PREDEFINED-MIDDLEWARE)
+I'll cover that later on in the [PREDEFINED MIDDLEWARE Section](#PREDEFINED-MIDDLEWARE)
 
 ## GET_id
 
@@ -164,7 +164,7 @@ GET_id(path = '/:id') {
 ```
 
 In the sake of simplicity, I'm omiting the second parameter this method expect, but do not worry, the behaivor of this method do not change.
-I'll cover that leter on in the [PREDEFINED MIDDLEWARE Section](#PREDEFINED-MIDDLEWARE)
+I'll cover that later on in the [PREDEFINED MIDDLEWARE Section](#PREDEFINED-MIDDLEWARE)
 
 ## POST
 
@@ -195,7 +195,7 @@ PUT(path = '/:id') {
 ```
 
 In the sake of simplicity, I'm omiting the second parameter this method expect, but do not worry, the behaivor of this method do not change.
-I'll cover that leter on in the [PREDEFINED MIDDLEWARE Section](#PREDEFINED-MIDDLEWARE)
+I'll cover that later on in the [PREDEFINED MIDDLEWARE Section](#PREDEFINED-MIDDLEWARE)
 
 ## DELETE
 
@@ -211,7 +211,7 @@ DELETE(path = '/:id') {
 ```
 
 In the sake of simplicity, I'm omiting the second parameter this method expect, but do not worry, the behaivor of this method do not change.
-I'll cover that leter on in the [PREDEFINED MIDDLEWARE Section](#PREDEFINED-MIDDLEWARE)
+I'll cover that later on in the [PREDEFINED MIDDLEWARE Section](#PREDEFINED-MIDDLEWARE)
 
 # NOTE: Work in progress
 
