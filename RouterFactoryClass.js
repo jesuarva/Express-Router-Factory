@@ -221,7 +221,7 @@ function isIdValid(req, res, next) {
 
   this.Model.findById(id)
     .then(idFound => {
-      return idFound ? next() : next(createError(404, 'The friend with the specified ID does not exist.'));
+      return idFound ? next() : next(createError(404, 'The data with the specified ID does not exist.'));
     })
     .catch(e => {
       next(e);
