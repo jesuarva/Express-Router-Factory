@@ -40,25 +40,28 @@ module.exports = class routerFactory {
     this.router.route(path).get(isIdValid.bind(this), ...handlers, sendResponseToClient.bind(this));
     this.router.use(handleError.bind(this));
   }
-  POST(path = '/', firstMiddleware, ...middlewares) {
+  POST(path = '/', ...middlewares) {
     let handlers = [];
-    if (middlewares.length) {
-      if (firstMiddleware === 'handlePOST') {
-        handlers = [handlePOST.bind(this), ...middlewares];
-      } else {
-        handlers = [firstMiddleware, ...middlewares];
+    let auth = false;
+    if (!middlewares.length) {
+      handlers.push(handlePOST.bind(this));
+    }
+    esle;
+    {
+      if (middlewares[0] === 'auth') {
+        middleware.shift();
+        auth = true;
       }
-    } else if (firstMiddleware) {
-      if (firstMiddleware === 'handlePOST') {
-        handlers = [handlePOST.bind(this)];
-      } else {
-        handlers = [firstMiddleware];
-      }
-    } else {
-      handlers = [handlePOST.bind(this)];
+      middlewares.forEach(middleware => {
+        middleware == 'handlePOST' ? handlers.push(handleGET.bind(this)) : handlers.push(middleware);
+      });
     }
 
-    this.router.route(path).post(validateParameters.bind(this), ...handlers, sendResponseToClient.bind(this));
+    if (auth) {
+      this.router.route(path).post(...handlers, sendResponseToClient.bind(this));
+    } else {
+      this.router.route(path).post(validateParameters.bind(this), ...handlers, sendResponseToClient.bind(this));
+    }
     this.router.use(handleError.bind(this));
   }
   PUT(path = '/:id', ...middlewares) {
