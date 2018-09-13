@@ -45,11 +45,10 @@ module.exports = class routerFactory {
     let auth = false;
     if (!middlewares.length) {
       handlers.push(handlePOST.bind(this));
-    }
-    esle;
+    } else;
     {
       if (middlewares[0] === 'auth') {
-        middleware.shift();
+        middlewares.shift();
         auth = true;
       }
       middlewares.forEach(middleware => {
