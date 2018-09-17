@@ -88,13 +88,7 @@ module.exports = class routerFactory {
     this.router
       .route('/:id')
       .get(isIdValid.bind(this), handleGET.bind(this), sendResponseToClient.bind(this))
-      .put(
-        isIdValid.bind(this),
-        checkForRequiredFields.bind(this),
-        // excludeUniqueFieldsFromPUT.bind(this), // Don't allow client to modify 'unique' fields.
-        handlePUT.bind(this),
-        sendResponseToClient.bind(this)
-      )
+      .put(isIdValid.bind(this), handlePUT.bind(this), sendResponseToClient.bind(this))
       .delete(isIdValid.bind(this), handleDELETE.bind(this), sendResponseToClient.bind(this));
 
     this.router.use(handleError.bind(this));
