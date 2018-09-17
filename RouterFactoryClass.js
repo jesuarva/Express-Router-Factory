@@ -64,13 +64,7 @@ module.exports = class routerFactory {
     // Fill the 'handlers' array
     buildHandlers.call(this, 'PUT', options, handlers, middlewares);
 
-    this.router.route(path).put(
-      isIdValid.bind(this),
-      checkForRequiredFields.bind(this),
-      // excludeUniqueFieldsFromPUT.bind(this),
-      ...handlers,
-      sendResponseToClient.bind(this)
-    );
+    this.router.route(path).put(isIdValid.bind(this), ...handlers, sendResponseToClient.bind(this));
     this.router.use(handleError.bind(this));
   }
 
@@ -97,7 +91,7 @@ module.exports = class routerFactory {
       .put(
         isIdValid.bind(this),
         checkForRequiredFields.bind(this),
-        excludeUniqueFieldsFromPUT.bind(this),
+        // excludeUniqueFieldsFromPUT.bind(this), // Don't allow client to modify 'unique' fields.
         handlePUT.bind(this),
         sendResponseToClient.bind(this)
       )
@@ -222,7 +216,7 @@ function isIdValid(req, res, next) {
       next(e);
     });
 }
-// If there are missing 'required' fields return an Error else next()
+// If there are missing 'required' fields next(error) else next()
 function checkForRequiredFields(req, res, next) {
   const params = { ...req.body };
 
