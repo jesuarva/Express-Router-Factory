@@ -20,23 +20,21 @@ module.exports = class routerFactory {
 
   GET(path = '/', ...middlewares) {
     let handlers = [];
-    !middlewares.length
-      ? handlers.push(handleGET.bind(this))
-      : middlewares.forEach(middleware => {
-          middleware == 'handleGET' ? handlers.push(handleGET.bind(this)) : handlers.push(middleware);
-        });
-    console.log(handlers);
+    let options = {};
+
+    // Fill the 'handlers' array
+    buildHandlers.call(this, 'GET', options, handlers, middlewares);
+
     this.router.route(path).get(...handlers, sendResponseToClient.bind(this));
     this.router.use(handleError.bind(this));
   }
 
   GET_id(path = '/:id', ...middlewares) {
     let handlers = [];
-    !middlewares.length
-      ? handlers.push(handleGET.bind(this))
-      : middlewares.forEach(middleware => {
-          middleware == 'handleGET' ? handlers.push(handleGET.bind(this)) : handlers.push(middleware);
-        });
+    let options = {};
+
+    // Fill the 'handlers' array
+    buildHandlers.call(this, 'GET', options, handlers, middlewares);
 
     this.router.route(path).get(isIdValid.bind(this), ...handlers, sendResponseToClient.bind(this));
     this.router.use(handleError.bind(this));
@@ -61,11 +59,10 @@ module.exports = class routerFactory {
 
   PUT(path = '/:id', ...middlewares) {
     let handlers = [];
-    !middlewares.length
-      ? handlers.push(handlePUT.bind(this))
-      : middlewares.forEach(middleware => {
-          middleware == 'handlePUT' ? handlers.push(handlePUT.bind(this)) : handlers.push(middleware);
-        });
+    let options = {};
+
+    // Fill the 'handlers' array
+    buildHandlers.call(this, 'PUT', options, handlers, middlewares);
 
     this.router.route(path).put(
       isIdValid.bind(this),
@@ -79,11 +76,10 @@ module.exports = class routerFactory {
 
   DELETE(path = '/:id', ...middlewares) {
     let handlers = [];
-    !middlewares.length
-      ? handlers.push(handleDELETE.bind(this))
-      : middlewares.forEach(middleware => {
-          middleware == 'handleDELETE' ? handlers.push(handleDELETE.bind(this)) : handlers.push(middleware);
-        });
+    let options = {};
+
+    // Fill the 'handlers' array
+    buildHandlers.call(this, 'DELETE', options, handlers, middlewares);
 
     this.router.route(path).delete(isIdValid.bind(this), ...handlers, sendResponseToClient.bind(this));
     this.router.use(handleError.bind(this));
