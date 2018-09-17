@@ -29,6 +29,7 @@ module.exports = class routerFactory {
     this.router.route(path).get(...handlers, sendResponseToClient.bind(this));
     this.router.use(handleError.bind(this));
   }
+
   GET_id(path = '/:id', ...middlewares) {
     let handlers = [];
     !middlewares.length
@@ -40,29 +41,24 @@ module.exports = class routerFactory {
     this.router.route(path).get(isIdValid.bind(this), ...handlers, sendResponseToClient.bind(this));
     this.router.use(handleError.bind(this));
   }
+
   POST(path = '/', ...middlewares) {
     let handlers = [];
-    let auth = false;
-    if (!middlewares.length) {
-      handlers.push(handlePOST.bind(this));
-    } else;
-    {
-      if (middlewares[0] === 'auth') {
-        middlewares.shift();
-        auth = true;
-      }
-      middlewares.forEach(middleware => {
-        middleware == 'handlePOST' ? handlers.push(handleGET.bind(this)) : handlers.push(middleware);
-      });
-    }
+    let options = {
+      login: false,
+    };
 
-    if (auth) {
+    // Fill the 'handlers' array
+    buildHandlers.call(this, 'POST', options, handlers, middlewares);
+
+    if (options.login) {
       this.router.route(path).post(...handlers, sendResponseToClient.bind(this));
     } else {
-      this.router.route(path).post(validateParameters.bind(this), ...handlers, sendResponseToClient.bind(this));
+      this.router.route(path).post(checkForRequiredFields.bind(this), ...handlers, sendResponseToClient.bind(this));
     }
     this.router.use(handleError.bind(this));
   }
+
   PUT(path = '/:id', ...middlewares) {
     let handlers = [];
     !middlewares.length
@@ -73,13 +69,14 @@ module.exports = class routerFactory {
 
     this.router.route(path).put(
       isIdValid.bind(this),
-      validateParameters.bind(this),
+      checkForRequiredFields.bind(this),
       // excludeUniqueFieldsFromPUT.bind(this),
       ...handlers,
       sendResponseToClient.bind(this)
     );
     this.router.use(handleError.bind(this));
   }
+
   DELETE(path = '/:id', ...middlewares) {
     let handlers = [];
     !middlewares.length
@@ -96,14 +93,14 @@ module.exports = class routerFactory {
     this.router
       .route('/')
       .get(handleGET.bind(this), sendResponseToClient.bind(this))
-      .post(validateParameters.bind(this), handlePOST.bind(this), sendResponseToClient.bind(this));
+      .post(checkForRequiredFields.bind(this), handlePOST.bind(this), sendResponseToClient.bind(this));
 
     this.router
       .route('/:id')
       .get(isIdValid.bind(this), handleGET.bind(this), sendResponseToClient.bind(this))
       .put(
         isIdValid.bind(this),
-        validateParameters.bind(this),
+        checkForRequiredFields.bind(this),
         excludeUniqueFieldsFromPUT.bind(this),
         handlePUT.bind(this),
         sendResponseToClient.bind(this)
@@ -230,40 +227,23 @@ function isIdValid(req, res, next) {
     });
 }
 // If there are missing 'required' fields return an Error else next()
-function validateParameters(req, res, next) {
-  const parameters = { ...req.body };
+function checkForRequiredFields(req, res, next) {
+  const params = { ...req.body };
 
-  // To 'push' the path that are "required: true"
-  let requiredPaths = [];
+  // Create new Mongose document with the parameters passed in the req.body
+  new this.Model(params).validate(error => {
+    // Extract missing required fields.
+    let missingRequiredFields;
 
-  // Get Schema paths and path's properties:
-  const pathsANDschema = Object.entries(this.Model.schema.paths); // returns an Array [[property_1, schema_1], [property_2, schema_2], ..., [property_n, schema_n]]
+    error && (missingRequiredFields = Object.keys(error.errors));
 
-  /**
-   * Filter the required paths: and push them to the 'requiredPaths' variable
-   */
-  pathsANDschema.forEach(entrie => {
-    const pathName = entrie[0];
-    const pathSchema = entrie[1];
-    pathSchema.validators.length === 1 && requiredPaths.push(pathName);
-
-    /**
-     * If there a several 'validators': => filter if one of them are of type 'required: true'
-     */
-    if (pathSchema.validators.length > 1) {
-      pathSchema.validators.forEach(validator => {
-        validator.type == 'required' && requiredPaths.push(pathName);
-      });
-    }
+    // if there are missing-required-fields ? next(error) : next()
+    missingRequiredFields
+      ? // Responde with a custom Error messages that contain the missing-required-fields
+        next(createError(400, `The following field(s) are required: ${missingRequiredFields.join(', ')}`))
+      : // Continue to next middleware
+        next();
   });
-
-  /**
-   * If there are no missing required paths: ? next() : next('custom-error')
-   * If the required field is in the body but has no value: error handle by the Schema validators.
-   */
-  requiredPaths.length === 0 || !areThereMissingPathsInParams(requiredPaths, parameters)
-    ? next()
-    : next(createError(400, `The following field are required: ${requiredPaths.join(' ')}`));
 }
 function excludeUniqueFieldsFromPUT(req, res, next) {
   const toUpdate = { ...req.body };
@@ -307,4 +287,33 @@ function areThereMissingPathsInParams(paths, parameters) {
     if (!parameters.hasOwnProperty(path)) missingFields = true;
   }
   return missingFields;
+}
+
+function buildHandlers(endpoint, options, handlers, middlewares) {
+  const defaultHandler = {
+    GET: ['handleGET', handleGET],
+    POST: ['handlePOST', handlePOST],
+    PUT: ['handlePUT', handlePUT],
+    DELETE: ['handleDELETE', handleDELETE],
+  }[endpoint];
+
+  // console.log(defaultHandler);
+
+  if (!middlewares.length) {
+    handlers.push(defaultHandler[1].bind(this));
+  } else {
+    // Check for the type of arguments passed, and push too 'handlers' the needed ones.
+    middlewares.forEach(middleware => {
+      switch (middleware) {
+        case 'login':
+          options.login = true;
+          break;
+        case defaultHandler[0]:
+          handlers.push(defaultHandler[1].bind(this));
+          break;
+        default:
+          handlers.push(middleware);
+      }
+    });
+  }
 }
