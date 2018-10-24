@@ -36,7 +36,9 @@ module.exports = class routerFactory {
     // Fill the 'handlers' array
     buildHandlers.call(this, 'GET', options, handlers, middlewares);
 
-    this.router.route(path).get(isIdValid.bind(this), ...handlers, sendResponseToClient.bind(this));
+    this.router
+      .route(path)
+      .get(isIdValid.bind(this), ...handlers, sendResponseToClient.bind(this));
     this.router.use(handleError.bind(this));
   }
 
@@ -50,9 +52,17 @@ module.exports = class routerFactory {
     buildHandlers.call(this, 'POST', options, handlers, middlewares);
 
     if (options.login) {
-      this.router.route(path).post(...handlers, sendResponseToClient.bind(this));
+      this.router
+        .route(path)
+        .post(...handlers, sendResponseToClient.bind(this));
     } else {
-      this.router.route(path).post(checkForRequiredFields.bind(this), ...handlers, sendResponseToClient.bind(this));
+      this.router
+        .route(path)
+        .post(
+          checkForRequiredFields.bind(this),
+          ...handlers,
+          sendResponseToClient.bind(this),
+        );
     }
     this.router.use(handleError.bind(this));
   }
@@ -64,7 +74,9 @@ module.exports = class routerFactory {
     // Fill the 'handlers' array
     buildHandlers.call(this, 'PUT', options, handlers, middlewares);
 
-    this.router.route(path).put(isIdValid.bind(this), ...handlers, sendResponseToClient.bind(this));
+    this.router
+      .route(path)
+      .put(isIdValid.bind(this), ...handlers, sendResponseToClient.bind(this));
     this.router.use(handleError.bind(this));
   }
 
@@ -75,7 +87,13 @@ module.exports = class routerFactory {
     // Fill the 'handlers' array
     buildHandlers.call(this, 'DELETE', options, handlers, middlewares);
 
-    this.router.route(path).delete(isIdValid.bind(this), ...handlers, sendResponseToClient.bind(this));
+    this.router
+      .route(path)
+      .delete(
+        isIdValid.bind(this),
+        ...handlers,
+        sendResponseToClient.bind(this),
+      );
     this.router.use(handleError.bind(this));
   }
 
@@ -83,13 +101,29 @@ module.exports = class routerFactory {
     this.router
       .route('/')
       .get(handleGET.bind(this), sendResponseToClient.bind(this))
-      .post(checkForRequiredFields.bind(this), handlePOST.bind(this), sendResponseToClient.bind(this));
+      .post(
+        checkForRequiredFields.bind(this),
+        handlePOST.bind(this),
+        sendResponseToClient.bind(this),
+      );
 
     this.router
       .route('/:id')
-      .get(isIdValid.bind(this), handleGET.bind(this), sendResponseToClient.bind(this))
-      .put(isIdValid.bind(this), handlePUT.bind(this), sendResponseToClient.bind(this))
-      .delete(isIdValid.bind(this), handleDELETE.bind(this), sendResponseToClient.bind(this));
+      .get(
+        isIdValid.bind(this),
+        handleGET.bind(this),
+        sendResponseToClient.bind(this),
+      )
+      .put(
+        isIdValid.bind(this),
+        handlePUT.bind(this),
+        sendResponseToClient.bind(this),
+      )
+      .delete(
+        isIdValid.bind(this),
+        handleDELETE.bind(this),
+        sendResponseToClient.bind(this),
+      );
 
     this.router.use(handleError.bind(this));
   }
@@ -97,7 +131,7 @@ module.exports = class routerFactory {
     this._setProjection = projections;
   }
   setPopulate(...arg) {
-    arg.forEach(arg => {
+    arg.forEach((arg) => {
       switch (typeof arg) {
         case 'string':
           this._toPopulate.push([arg, {}]);
@@ -127,21 +161,24 @@ function handlePOST(req, res, next) {
   const toPost = this.newModel(parameters);
   toPost
     .save()
-    .then(newDocument => {
+    .then((newDocument) => {
       // res.status(201).json(newDocument);
       req.responseDocument = newDocument;
       next();
     })
-    .catch(e => {
+    .catch((e) => {
       next(e);
     });
 }
 function handleGET(req, res, next) {
   const { id } = req.params;
-  let fetching = !id ? this.Model.find({}, {}) : this.Model.find({ _id: id }, {});
+  let fetching = !id
+    ? this.Model.find({}, {})
+    : this.Model.find({ _id: id }, {});
 
   // Populate the query
-  this._toPopulate && this._toPopulate.forEach(join => fetching.populate(join[0], join[1]));
+  this._toPopulate &&
+    this._toPopulate.forEach((join) => fetching.populate(join[0], join[1]));
   // Project the query
   this._setProjection && fetching.select(this._setProjection);
 
@@ -160,11 +197,11 @@ function handleDELETE(req, res, next) {
   const { id } = req.params;
 
   this.Model.findByIdAndRemove(id)
-    .then(response => {
+    .then((response) => {
       req.responseDocument = response;
       next();
     })
-    .catch(e => {
+    .catch((e) => {
       next(createError(500, 'The document could not be removed'));
     });
 }
@@ -172,11 +209,11 @@ function handlePUT(req, res, next) {
   const { id } = req.params;
   const { ...toUpdate } = req.toUpdate || req.body;
   this.Model.findByIdAndUpdate(id, toUpdate, { new: true, runValidators: true })
-    .then(response => {
+    .then((response) => {
       req.responseDocument = response;
       next();
     })
-    .catch(e => {
+    .catch((e) => {
       next(e);
     });
 }
@@ -184,11 +221,16 @@ function handlePUT(req, res, next) {
  * ERROR: Handle Error
  */
 function handleError(err, req, res, next) {
-  !err.status ? next(err) : res.status(err.status).json({ errorMessage: err.message });
+  !err.status
+    ? next(err)
+    : res.status(err.status).json({ errorMessage: err.message });
   next();
 }
 // return a new custom Error
-function createError(code = 500, message = 'Oh, oh.... there is a problem bargain with the dababase, try again!') {
+function createError(
+  code = 500,
+  message = 'Oh, oh.... there is a problem bargain with the dababase, try again!',
+) {
   let e = new Error();
   e.status = code;
   e.message = message;
@@ -203,10 +245,14 @@ function isIdValid(req, res, next) {
   if (!id) return next();
 
   this.Model.findById(id)
-    .then(idFound => {
-      return idFound ? next() : next(createError(404, 'The data with the specified ID does not exist.'));
+    .then((idFound) => {
+      return idFound
+        ? next()
+        : next(
+            createError(404, 'The data with the specified ID does not exist.'),
+          );
     })
-    .catch(e => {
+    .catch((e) => {
       next(e);
     });
 }
@@ -215,7 +261,7 @@ function checkForRequiredFields(req, res, next) {
   const params = { ...req.body };
 
   // Create new Mongose document with the parameters passed in the req.body
-  new this.Model(params).validate(error => {
+  new this.Model(params).validate((error) => {
     // Extract missing required fields.
     let missingRequiredFields;
 
@@ -224,7 +270,14 @@ function checkForRequiredFields(req, res, next) {
     // if there are missing-required-fields ? next(error) : next()
     missingRequiredFields
       ? // Responde with a custom Error messages that contain the missing-required-fields
-        next(createError(400, `The following field(s) are required: ${missingRequiredFields.join(', ')}`))
+        next(
+          createError(
+            400,
+            `The following field(s) are required: ${missingRequiredFields.join(
+              ', ',
+            )}`,
+          ),
+        )
       : // Continue to next middleware
         next();
   });
@@ -232,7 +285,7 @@ function checkForRequiredFields(req, res, next) {
 function excludeUniqueFieldsFromPUT(req, res, next) {
   const toUpdate = { ...req.body };
   const entries = Object.entries(this.Model.schema.paths);
-  entries.forEach(entrie => {
+  entries.forEach((entrie) => {
     const pathName = entrie[0];
     const pathProperties = entrie[1];
     /**
@@ -287,7 +340,7 @@ function buildHandlers(endpoint, options, handlers, middlewares) {
     handlers.push(defaultHandler[1].bind(this));
   } else {
     // Check for the type of arguments passed, and push too 'handlers' the needed ones.
-    middlewares.forEach(middleware => {
+    middlewares.forEach((middleware) => {
       switch (middleware) {
         case 'login':
           options.login = true;
