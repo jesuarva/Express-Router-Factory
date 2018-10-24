@@ -318,14 +318,6 @@ function sendResponseToClient(req, res, next) {
 /**
  * OTHER Helpers: auxiliar functions
  */
-function areThereMissingPathsInParams(paths, parameters) {
-  let missingFields = false;
-  for (let path of paths) {
-    if (!parameters.hasOwnProperty(path)) missingFields = true;
-  }
-  return missingFields;
-}
-
 function buildHandlers(endpoint, options, handlers, middlewares) {
   const defaultHandler = {
     GET: ['handleGET', handleGET],
