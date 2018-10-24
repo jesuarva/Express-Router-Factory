@@ -1,6 +1,6 @@
 # Express Router Factory
 
-> Router Factory is a boilerplate for express routers endpoints. It came with predefined middlewares/validators and also provide the possibility to include custom ones. It allows population and projection
+> An npm library to handle express-mongoose routers endpoints. It comes with predefined middlewares/validators and also provide the possibility to include custom ones. It allows population and projection
 
 # Installation
 
